@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Results Scraper</title>
+</head>
+<body>
+    <div class="nav-strip">
+        <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
+        <h1>Results Scraper</h1>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Developed By</h2>
+        <p> Mohammed Abdul Rahman </p>
+        <P> AR </P>
+        <p>
+            <a href="https://github.com/that-ar-guy" target="_blank">GitHub</a>
+        </p>
+        <p>
+            <a href="https://linkedin.com/in/that-ar-guy" target="_blank">LinkedIn</a>
+        </p>
+        <button onclick="toggleSidebar()">Close</button>
+    </div>
+
+    
+    <form method="POST">
+        {{ form.csrf_token }}
+        <div>
+            {{ form.result_link.label }} {{ form.result_link }}
+        </div>
+        <div>
+            {{ form.college_code.label }} {{ form.college_code }}
+        </div>
+        <div>
+            {{ form.field_code.label }} {{ form.field_code }}
+        </div>
+        <div>
+            {{ form.year.label }} {{ form.year }}
+        </div>
+        <button type="submit">Get Results</button>
+    </form>
+
+    {% if results %}
+        <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Hall Ticket</th>
+                    <th>Name</th>
+                    <th>Marks</th>
+                    <th>Backlogs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td data-label="Hall Ticket">{{ result.hall_ticket }}</td>
+                    <td data-label="Name">{{ result.name }}</td>
+                    <td data-label="Marks">{{ result.marks }}</td>
+                    <td data-label="Backlogs">{{ result.backlogs }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')">Download as Excel Sheet</button>
+    {% endif %}
+
+    <!-- Include SheetJS for XLSX support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        function downloadXLSX(filename) {
+            let table = document.getElementById("resultsTable");
+            if (!table) {
+                console.error("Table not found!");
+                return;
+            }
+            
+            let wb = XLSX.utils.table_to_book(table, { sheet: "Results" });
+            XLSX.writeFile(wb, filename);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
+        }
+    </script>
+
+</body>
+</html>
