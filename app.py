@@ -6,9 +6,10 @@ import requests
 from requests.adapters import HTTPAdapter
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///results.db'
 db = SQLAlchemy(app)
 
