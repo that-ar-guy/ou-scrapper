@@ -7,9 +7,10 @@ from requests.adapters import HTTPAdapter
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup
 import logging
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///results.db'
 db = SQLAlchemy(app)
 
@@ -26,6 +27,7 @@ class StudentResult(db.Model):
 
     def __repr__(self):
         return f'{self.name} - {self.hall_ticket}'
+
 
 FIELD_CHOICES = {
     '748': 'AIML',
@@ -70,17 +72,18 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
 # Helper Function to Scrape Each Batch
 def scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_end):
     results = []
-    session = requests.Session()
-    adapter = HTTPAdapter()
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+    
+    with requests.Session() as session:
+        adapter = HTTPAdapter()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
 
-    for index in range(batch_start, batch_end):
-        hall_ticket = f"{college_code}{year}{field_code}{str(index).zfill(3)}"
-        app.logger.info(f"Scraping hall ticket: {hall_ticket}")
-        result = find_result(globalbr, pre_link, hall_ticket, session)
-        if result:
-            results.append(result)
+        for index in range(batch_start, batch_end):
+            hall_ticket = f"{college_code}{year}{field_code}{str(index).zfill(3)}"
+            app.logger.info(f"Scraping hall ticket: {hall_ticket}")
+            result = find_result(globalbr, pre_link, hall_ticket, session)
+            if result:
+                results.append(result)
 
     return results
 
