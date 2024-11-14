@@ -69,6 +69,7 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
 
     return results
 
+
 # Helper Function to Scrape Each Batch
 def scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_end):
     results = []
@@ -110,14 +111,21 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     table = soup.find(id="AutoNumber5")
     if not table:
         return None
-    rows = table.find_all("tr")[-1]
-    marks = rows.find_all('td')[1].get_text(strip=True)
+    rows = table.find_all("tr")[2:]  # Assuming multiple rows for different semesters
+
+    # Create a list of dictionaries for marks across semesters
+    marks_list = []
+    for row in rows:
+        cells = row.find_all("td")
+        semester = cells[0].get_text(strip=True)
+        marks = cells[1].get_text(strip=True)
+        marks_list.append({'semester': semester, 'marks': marks})
 
     f_grade_subjects = extract_subjects_with_f_grade(soup)
 
     return {
         'hall_ticket': hall_ticket,
-        'marks': marks,
+        'marks': marks_list,  # List of dictionaries with semester and marks
         'name': name,
         'backlogs': Markup('<br>'.join(f_grade_subjects)) if f_grade_subjects else "No Backlogs",
     }
@@ -154,6 +162,7 @@ def index():
         results = scrape_results_in_batches(result_link, college_code, field_code, year)
 
     return render_template('index.html', form=form, results=results, college_name=college_name, field_name=field_name)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
