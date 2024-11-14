@@ -27,7 +27,7 @@
     </div>
 
     
-    <form method="POST">
+    <form method="POST" onsubmit="showLoading()" > 
         {{ form.csrf_token }}
         <div>
             {{ form.result_link.label }} {{ form.result_link }}
@@ -45,33 +45,52 @@
     </form>
 
     {% if results %}
-        <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th>Hall Ticket</th>
-                    <th>Name</th>
-                    <th>Marks</th>
-                    <th>Backlogs</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in results %}
-                <tr>
-                    <td data-label="Hall Ticket">{{ result.hall_ticket }}</td>
-                    <td data-label="Name">{{ result.name }}</td>
-                    <td data-label="Marks">{{ result.marks }}</td>
-                    <td data-label="Backlogs">{{ result.backlogs }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')">Download as Excel Sheet</button>
-    {% endif %}
+    <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Hall Ticket</th>
+                <th>Name</th>
+                <th>Marks</th> <!-- Modified to display semester and marks -->
+                <th>Backlogs</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td data-label="Hall Ticket">{{ result.hall_ticket[-3:] }}</td>
+                <td data-label="Name">{{ result.name }}</td>
+                <td data-label="Marks">
+                    {% for entry in result.marks %}
+                        <strong>Semester:</strong> {{ entry.semester }}<br>
+                        <strong>Marks:</strong> {{ entry.marks }}<br><br>
+                    {% endfor %}
+                </td>
+                <td data-label="Backlogs">{{ result.backlogs }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')">Download as Excel Sheet</button>
+{% endif %}
+
+
+    <div id="loading-overlay">
+        <div class="loading-message">
+            <div class="spinner"></div>
+            <p>Please wait while we get your results...</p>
+        </div>
+    </div>
 
     <!-- Include SheetJS for XLSX support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
+
+function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+
+
         function downloadXLSX(filename) {
             let table = document.getElementById("resultsTable");
             if (!table) {

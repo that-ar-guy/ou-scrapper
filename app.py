@@ -6,12 +6,16 @@ import requests
 from requests.adapters import HTTPAdapter
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup
+import logging
 import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///results.db'
 db = SQLAlchemy(app)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # Models
 class StudentResult(db.Model):
@@ -23,6 +27,7 @@ class StudentResult(db.Model):
 
     def __repr__(self):
         return f'{self.name} - {self.hall_ticket}'
+
 
 FIELD_CHOICES = {
     '748': 'AIML',
@@ -45,35 +50,54 @@ COLLEGE_CHOICES = {
     '2453': 'NGIT',
 }
 
-# Web Scraping Function
-def scrape_results(result_link, college_code, field_code, year):
+# Web Scraping Function (Batch Processing)
+def scrape_results_in_batches(result_link, college_code, field_code, year):
     globalbr = mechanize.Browser()
     globalbr.set_handle_robots(False)
     pre_link = result_link + "?mbstatus&htno="
+
     results = []
+    BATCH_SIZE = 20  # Scrape in smaller batches to reduce memory load
 
-    for index in range(1, 121):  # Regular students
-        hall_ticket = f"{college_code}{year}{field_code}{str(index).zfill(3)}"
-        result = find_result(globalbr, pre_link, hall_ticket)
-        if result:
-            results.append(result)
+    # Regular students (batched)
+    for batch_start in range(1, 121, BATCH_SIZE):
+        results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
 
-    for index in range(301, 313):  # Lateral entry students
-        hall_ticket = f"{college_code}{year}{field_code}{str(index).zfill(3)}"
-        result = find_result(globalbr, pre_link, hall_ticket)
-        if result:
-            results.append(result)
+    # Lateral entry students (batched)
+    for batch_start in range(301, 313, BATCH_SIZE):
+        results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
+
+    return results
+
+
+# Helper Function to Scrape Each Batch
+def scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_end):
+    results = []
+    
+    with requests.Session() as session:
+        adapter = HTTPAdapter()
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+
+        for index in range(batch_start, batch_end):
+            hall_ticket = f"{college_code}{year}{field_code}{str(index).zfill(3)}"
+            app.logger.info(f"Scraping hall ticket: {hall_ticket}")
+            result = find_result(globalbr, pre_link, hall_ticket, session)
+            if result:
+                results.append(result)
 
     return results
 
 # Helper Function to Find Result
-def find_result(globalbr, pre_link, hall_ticket):
+def find_result(globalbr, pre_link, hall_ticket, session):
     result_link = pre_link + hall_ticket
-    session = requests.Session()
-    adapter = HTTPAdapter()
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    raw = session.get(result_link)
+    try:
+        raw = session.get(result_link, timeout=5)
+        raw.raise_for_status()  # Raise an error for HTTP codes 4xx/5xx
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Error fetching result for {hall_ticket}: {e}")
+        return None
+
     soup = BeautifulSoup(raw.content, "html.parser")
 
     table = soup.find('table', id="AutoNumber3")
@@ -87,14 +111,21 @@ def find_result(globalbr, pre_link, hall_ticket):
     table = soup.find(id="AutoNumber5")
     if not table:
         return None
-    rows = table.find_all("tr")[-1]
-    marks = rows.find_all('td')[1].get_text(strip=True)
+    rows = table.find_all("tr")[2:]  # Assuming multiple rows for different semesters
+
+    # Create a list of dictionaries for marks across semesters
+    marks_list = []
+    for row in rows:
+        cells = row.find_all("td")
+        semester = cells[0].get_text(strip=True)
+        marks = cells[1].get_text(strip=True)
+        marks_list.append({'semester': semester, 'marks': marks})
 
     f_grade_subjects = extract_subjects_with_f_grade(soup)
 
     return {
         'hall_ticket': hall_ticket,
-        'marks': marks,
+        'marks': marks_list,  # List of dictionaries with semester and marks
         'name': name,
         'backlogs': Markup('<br>'.join(f_grade_subjects)) if f_grade_subjects else "No Backlogs",
     }
@@ -127,10 +158,11 @@ def index():
         field_name = FIELD_CHOICES.get(field_code)
         year = form.year.data
 
-        # Scraping Results
-        results = scrape_results(result_link, college_code, field_code, year)
+        # Scraping Results in batches
+        results = scrape_results_in_batches(result_link, college_code, field_code, year)
 
     return render_template('index.html', form=form, results=results, college_name=college_name, field_name=field_name)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
