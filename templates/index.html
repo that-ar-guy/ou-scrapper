@@ -58,7 +58,7 @@
             <tbody>
                 {% for result in results %}
                 <tr>
-                    <td data-label="Hall Ticket">{{ result.hall_ticket }}</td>
+                    <td data-label="Hall Ticket">{{ result.hall_ticket [-3:]}}</td>
                     <td data-label="Name">{{ result.name }}</td>
                     <td data-label="Marks">{{ result.marks }}</td>
                     <td data-label="Backlogs">{{ result.backlogs }}</td>
