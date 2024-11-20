@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Results Scraper</title>
 </head>
-<body>
+<body class="bg-beige"> <!-- Added class for background color -->
+
     <div class="nav-strip">
         <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
         <h1>Results Scraper</h1>
@@ -16,7 +17,7 @@
     <div class="sidebar" id="sidebar">
         <h2>Developed By</h2>
         <p> Mohammed Abdul Rahman </p>
-        <P> AR </P>
+        <p> AR </p>
         <p>
             <a href="https://github.com/that-ar-guy" target="_blank">GitHub</a>
         </p>
@@ -26,32 +27,31 @@
         <button onclick="toggleSidebar()">Close</button>
     </div>
 
-    
-    <form method="POST" onsubmit="showLoading()" > 
+    <form method="POST" onsubmit="showLoading()">
         {{ form.csrf_token }}
-        <div>
+        <div class="form-group">
             {{ form.result_link.label }} {{ form.result_link }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.college_code.label }} {{ form.college_code }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.field_code.label }} {{ form.field_code }}
         </div>
-        <div>
+        <div class="form-group">
             {{ form.year.label }} {{ form.year }}
         </div>
-        <button type="submit">Get Results</button>
+        <button type="submit" class="btn-submit">Get Results</button>
     </form>
 
     {% if results %}
     <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
-    <table id="resultsTable">
+    <table id="resultsTable" class="results-table"> <!-- Added class for table styling -->
         <thead>
             <tr>
                 <th>Hall Ticket</th>
                 <th>Name</th>
-                <th>Marks</th> <!-- Modified to display semester and marks -->
+                <th>Marks</th>
                 <th>Backlogs</th>
             </tr>
         </thead>
@@ -71,9 +71,8 @@
             {% endfor %}
         </tbody>
     </table>
-    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')">Download as Excel Sheet</button>
-{% endif %}
-
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{ field_name }}_RESULTS.xlsx')">Download as Excel Sheet</button>
+    {% endif %}
 
     <div id="loading-overlay">
         <div class="loading-message">
@@ -85,11 +84,9 @@
     <!-- Include SheetJS for XLSX support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-
-function showLoading() {
+        function showLoading() {
             document.getElementById('loading-overlay').style.display = 'flex';
         }
-
 
         function downloadXLSX(filename) {
             let table = document.getElementById("resultsTable");
