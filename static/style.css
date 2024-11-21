@@ -1,26 +1,26 @@
 /* Global Styling */
 body.bg-beige {
-    background-color: #FAF0D8; /* Soft beige as per Proposed changes */
-    font-family: 'Arial', sans-serif; /* Use a clean, professional font */
+    background-color: #FAF0D8;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    color: #333; /* Dark text color for better readability */
+    color: #333;
 }
 
 h1, h2 {
-    font-family: 'Georgia', serif; /* Elegant serif for headings */
-    color: #003366; /* Dark blue for headings */
+    font-family: 'Georgia', serif;
+    color: #003366;
 }
 
 /* Navigation Strip */
 .nav-strip {
-    background-color: #003366; /* Deep blue for a professional look */
+    background-color: #003366;
     color: white;
-    padding: 15px 20px; /* Added more padding for better spacing */
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow for better separation */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .nav-strip .logo {
@@ -31,7 +31,7 @@ h1, h2 {
 .burger-icon {
     font-size: 30px;
     cursor: pointer;
-    display: none; /* Hide the burger icon for larger screens */
+    display: block;
 }
 
 /* Sidebar */
@@ -59,7 +59,7 @@ h1, h2 {
 }
 
 .sidebar a:hover {
-    background-color: #00509E; /* Change on hover for better interaction */
+    background-color: #00509E;
 }
 
 /* Responsive Design for Navbar and Sidebar */
@@ -68,45 +68,66 @@ h1, h2 {
         flex-direction: column;
         align-items: flex-start;
     }
-    .burger-icon {
-        display: block; /* Show the burger icon on mobile */
-    }
+}
+
+/* Form Styling */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 60%;
+    margin: 40px auto;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-group label {
+    width: 200px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #003366;
+}
+
+.input-container {
+    width: 100%;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-left: 10px; /* Space between label and input */
+}
+
+input::placeholder, select::placeholder {
+    color: #aaa;
 }
 
 /* Button Styling */
 button {
-    background-color: #003366; /* Deep blue background */
+    background-color: #003366;
     color: white;
     border: none;
     padding: 12px 25px;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 8px; /* More rounded button corners */
+    border-radius: 8px;
     transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #00509E; /* Lighter blue on hover */
-}
-
-/* Form Styling */
-.form-group {
-    margin-bottom: 20px; /* Increased space between form groups */
-}
-
-form {
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    width: 60%; /* Slightly wider form */
-    margin: 40px auto;
-}
-
-h2 {
-    text-align: center;
-    color: #003366;
-    font-size: 24px;
+    background-color: #00509E;
 }
 
 /* Table Styling */
@@ -180,7 +201,6 @@ h2 {
     animation: spin 1.5s linear infinite;
 }
 
-/* Spinner Animation */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
