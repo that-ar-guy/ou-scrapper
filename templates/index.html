@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Results Scraper</title>
 </head>
-<body class="bg-beige"> <!-- Added class for background color -->
+<body class="bg-beige">
 
     <div class="nav-strip">
         <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
@@ -27,26 +27,30 @@
         <button onclick="toggleSidebar()">Close</button>
     </div>
 
-    <form method="POST" onsubmit="showLoading()">
+    <form method="POST" onsubmit="showLoading()" class="form-container">
         {{ form.csrf_token }}
         <div class="form-group">
-            {{ form.result_link.label }} {{ form.result_link }}
+            <label for="result_link">{{ form.result_link.label }}</label>
+            <div class="input-container">{{ form.result_link }}</div>
         </div>
         <div class="form-group">
-            {{ form.college_code.label }} {{ form.college_code }}
+            <label for="college_code">{{ form.college_code.label }}</label>
+            <div class="input-container">{{ form.college_code }}</div>
         </div>
         <div class="form-group">
-            {{ form.field_code.label }} {{ form.field_code }}
+            <label for="field_code">{{ form.field_code.label }}</label>
+            <div class="input-container">{{ form.field_code }}</div>
         </div>
         <div class="form-group">
-            {{ form.year.label }} {{ form.year }}
+            <label for="year">{{ form.year.label }}</label>
+            <div class="input-container">{{ form.year }}</div>
         </div>
         <button type="submit" class="btn-submit">Get Results</button>
     </form>
 
     {% if results %}
     <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
-    <table id="resultsTable" class="results-table"> <!-- Added class for table styling -->
+    <table id="resultsTable" class="results-table">
         <thead>
             <tr>
                 <th>Hall Ticket</th>
@@ -81,7 +85,6 @@
         </div>
     </div>
 
-    <!-- Include SheetJS for XLSX support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
         function showLoading() {
