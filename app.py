@@ -57,10 +57,10 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     pre_link = result_link + "?mbstatus&htno="
 
     results = []
-    BATCH_SIZE = 20  # Scrape in smaller batches to reduce memory load
+    BATCH_SIZE = 30  # Scrape in smaller batches to reduce memory load
 
     # Regular students (batched)
-    for batch_start in range(1, 121, BATCH_SIZE):
+    for batch_start in range(1, 30, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
 
     # Lateral entry students (batched)
