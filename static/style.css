@@ -1,4 +1,5 @@
 body {
+    overflow-x:hidden;
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
     color: #333;
@@ -26,7 +27,7 @@ body {
     font-size: 24px;
     cursor: pointer;
     position: absolute; /* Keep the icon absolute */
-    left: 10px; /* Adjust left position */
+    left: 20px; /* Adjust left position */
     top: 50%; /* Center vertically */
     transform: translateY(-50%); /* Align icon vertically */
 }
@@ -52,7 +53,12 @@ body {
 .sidebar a {
     display: block;
     margin: 10px 0;
-    color: #007bff;
+    color: #000080;
+    text-decoration: none;
+}
+.sidebar a:visited{
+    color: #000080;
+
 }
 
 .sidebar button {
@@ -115,8 +121,9 @@ button:hover {
 }
 
 form input, form select, form textarea, form button {
+    margin-top: 10px;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     padding: 8px;
     box-sizing: border-box;
 }
