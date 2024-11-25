@@ -23,7 +23,7 @@
         <p>
             <a href="https://linkedin.com/in/that-ar-guy" target="_blank">LinkedIn</a>
         </p>
-        <button onclick="toggleSidebar()"><b>Close</b></button>
+        <button onclick="toggleSidebar()"><b>CLOSE</b></button>
     </div>
 
     
@@ -41,25 +41,25 @@
         <div>
             {{ form.year.label }} {{ form.year }}
         </div>
-        <button type="submit"><b>Get Results</b></button>
+        <button type="submit"><b>GET RESULTS</b></button>
     </form>
 
     {% if results %}
-    <h2 id="heading">Results for {{ college_name }} - {{ field_name }}</h2>
+    <h2 id="heading">RESULTS OF {{ college_name }} - {{ field_name }}</h2>
     <table id="resultsTable">
         <thead>
             <tr>
-                <th>Hall Ticket</th>
-                <th>Name</th>
-                <th>Marks</th> <!-- Modified to display semester and marks -->
-                <th>Backlogs</th>
+                <th>ROLL NO</th>
+                <th>NAME</th>
+                <th>MARKS</th> 
+                <th>BACKLOGS</th>
             </tr>
         </thead>
         <tbody>
             {% for result in results %}
             <tr>
-                <td data-label="Hall Ticket">{{ result.hall_ticket[-3:] }}</td>
-                <td data-label="Name">{{ result.name }}</td>
+                <td data-label="Hall Ticket"> <B>{{ result.hall_ticket[-3:] }}</B> </td>
+                <td data-label="Name"> <b>{{ result.name }}</b> </td>
                 <td data-label="Marks">
                     {% for entry in result.marks %}
                         <strong>Semester:</strong> {{ entry.semester }}<br>
@@ -71,7 +71,7 @@
             {% endfor %}
         </tbody>
     </table>
-    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')">Download as Excel Sheet</button>
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD RESULTS</b></button>
 {% endif %}
 
 
