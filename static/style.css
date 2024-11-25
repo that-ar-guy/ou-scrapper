@@ -12,17 +12,17 @@ body {
 }
 
 .nav-strip {
-    background-color: #007bff;
+    background-color: #edc98700;
     color: white;
     padding: 10px;
     width: 100%; /* Set width to 100% */
-    position: fixed; /* Fixed position to keep it at the top */
+    position:absolute; /* Fixed position to keep it at the top */
     top: 0; /* Align it to the top of the page */
     left: 0; /* Align it to the left */
     z-index: 1000; /* Ensure it stays above other content */
 }
 
-.burger-icon {
+.burger-icon {color: black;
     font-size: 24px;
     cursor: pointer;
     position: absolute; /* Keep the icon absolute */
@@ -64,6 +64,7 @@ body {
 }
 
 form {
+    border: 1px solid black;
     margin: 20px 20px;
     width: 50%;
     max-width: 600px;
@@ -87,8 +88,8 @@ th, td {
 }
 
 th {
-    background-color: #4285f4;
-    color: white;
+    background-color:#EDC987;
+    color: black;
     border: 1px solid #4285f4;
 }
 
@@ -101,15 +102,16 @@ tr:hover {
 }
 
 button {
-    background-color: #4285f4;
-    color: white;
+    background-color: #4286f400;
+    color:#FF0000;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #357ae8;
+    border: 1px solid black;
+    background-color: #007bff00;
 }
 
 form input, form select, form textarea, form button {
@@ -141,8 +143,8 @@ footer a {
 }
 
 button.download-btn {
-    background-color: #4285f4;
-    color: white;
+    background-color: #4286f400;
+    color: #FF0000;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
@@ -152,7 +154,8 @@ button.download-btn {
 }
 
 button.download-btn:hover {
-    background-color: #357ae8;
+    background-color: #357ae800;
+    border: 1px solid black;
 }
 
 @media (max-width:427px) {
@@ -181,11 +184,13 @@ button.download-btn:hover {
 }
 /* Basic styles */
 body {
+    background-color: #FAF0D8;
     font-family: Arial, sans-serif;
     margin: 20px;
 }
 
 h1, h2 {
+    color:black;
     text-align: center;
 }
 
@@ -199,7 +204,7 @@ table {
 th, td {
     padding: 10px;
     text-align: left;
-    border: 1px solid #ddd;
+    border: 2px solid black;
 }
 
 
