@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,session
 from forms import ResultForm
 from bs4 import BeautifulSoup
 import mechanize
@@ -163,24 +163,16 @@ def index():
         field_code = form.field_code.data
         field_name = FIELD_CHOICES.get(field_code)
         year = form.year.data
-
+                
         # Scraping Results in batches
         results = scrape_results_in_batches(result_link, college_code, field_code, year)
-
+        session['results'] = results
     return render_template('index.html', form=form, results=results, college_name=college_name, field_name=field_name)
 
-@app.route('/analysis', methods=['POST'])
+@app.route('/analysis')
 def analysis():
-    results = request.json.get('results', [])  # Get results from the POST request
-    # Extract backlog data and count occurrences
-    all_backlogs = []
-    for result in results:
-        if result['backlogs'] != "No Backlogs":
-            all_backlogs.extend(result['backlogs'].split('<br>'))  # Backlogs are HTML-escaped
-    backlog_counts = Counter(all_backlogs)
-    # Prepare data for rendering
-    analysis_data = [{'subject': subject, 'count': count} for subject, count in backlog_counts.items()]
-    return render_template('analysis.html', analysis_data=analysis_data)
+    results = session.get('results', [])
+    return render_template('analysis.html', results=results)
 
 if __name__ == '__main__':
     app.run(debug=True)

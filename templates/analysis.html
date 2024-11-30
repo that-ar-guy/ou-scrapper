@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Analysis - Results Scraper</title>
+</head>
+
+<body>
+    <div class="nav-strip">
+        <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
+        <h1>ANALYSIS</h1>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <h2>Developed By</h2>
+        <p><b> Mohammed Abdul Rahman</b></p>
+        <P> AR </P>
+        <p>
+            <a href="https://github.com/that-ar-guy" target="_blank">GitHub</a>
+        </p>
+        <p>
+            <a href="https://linkedin.com/in/that-ar-guy" target="_blank">LinkedIn</a>
+        </p>
+        <button onclick="toggleSidebar()"><b>CLOSE</b></button>
+    </div>
+
+    <h2>Backlogs Analysis</h2>
+    <table id="backlogsTable">
+        <thead>
+            <tr>
+                <th>Backlogs</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.backlogs }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="loading-overlay">
+        <div class="loading-message">
+            <div class="spinner"></div>
+            <p>Please wait while we load the analysis...</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
+        }
+    </script>
+
+</body>
+
+</html>
