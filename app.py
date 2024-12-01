@@ -1,3 +1,4 @@
+from collections import Counter
 from flask import Flask, render_template, request,session
 from forms import ResultForm
 from bs4 import BeautifulSoup
@@ -172,7 +173,18 @@ def index():
 @app.route('/analysis')
 def analysis():
     results = session.get('results', [])
-    return render_template('analysis.html', results=results)
+    
+    # Collect all backlogs excluding "No Backlogs"
+    all_backlogs = []
+    for result in results:
+        if result['backlogs'] != "No Backlogs":
+            all_backlogs.extend(result['backlogs'].split('<br>'))  # Assuming backlogs are split by <br>
+    
+    # Count occurrences of each backlog and sort by count in descending order
+    backlog_counts = dict(sorted(Counter(all_backlogs).items(), key=lambda item: item[1], reverse=True))
+    
+    return render_template('analysis.html', backlog_counts=backlog_counts)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
