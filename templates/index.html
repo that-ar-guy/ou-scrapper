@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Results Scraper</title>
 </head>
+
 <body>
     <div class="nav-strip">
         <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
@@ -26,8 +28,7 @@
         <button onclick="toggleSidebar()"><b>CLOSE</b></button>
     </div>
 
-    
-    <form method="POST" onsubmit="showLoading()" > 
+    <form method="POST" onsubmit="showLoading()">
         {{ form.csrf_token }}
         <div>
             {{ form.result_link.label }} {{ form.result_link }}
@@ -51,7 +52,7 @@
             <tr>
                 <th>ROLL NO</th>
                 <th>NAME</th>
-                <th>MARKS</th> 
+                <th>MARKS</th>
                 <th>BACKLOGS</th>
             </tr>
         </thead>
@@ -62,8 +63,8 @@
                 <td data-label="Name"> <b>{{ result.name }}</b> </td>
                 <td data-label="Marks">
                     {% for entry in result.marks %}
-                        <strong>Semester:</strong> {{ entry.semester }}<br>
-                        <strong>Marks:</strong> {{ entry.marks }}<br><br>
+                    <strong>Semester:</strong> {{ entry.semester }}<br>
+                    <strong>Marks:</strong> {{ entry.marks }}<br><br>
                     {% endfor %}
                 </td>
                 <td data-label="Backlogs">{{ result.backlogs }}</td>
@@ -71,10 +72,11 @@
             {% endfor %}
         </tbody>
     </table>
-    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD RESULTS</b></button>
-    <button class="download-btn" onclick="postResultsForAnalysis()"><b>VIEW ANALYSIS</b></button>
-{% endif %}
 
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD
+            RESULTS</b></button>
+    <button class="download-btn" onclick="location.href='/analysis'"><b>VIEW ANALYSIS</b></button>
+    {% endif %}
 
     <div id="loading-overlay">
         <div class="loading-message">
@@ -87,7 +89,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
 
-function showLoading() {
+        function showLoading() {
             document.getElementById('loading-overlay').style.display = 'flex';
         }
 
@@ -98,7 +100,7 @@ function showLoading() {
                 console.error("Table not found!");
                 return;
             }
-            
+
             let wb = XLSX.utils.table_to_book(table, { sheet: "Results" });
             XLSX.writeFile(wb, filename);
         }
@@ -110,4 +112,5 @@ function showLoading() {
     </script>
 
 </body>
+
 </html>
