@@ -67,7 +67,7 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     BATCH_SIZE = 30  # Scrape in smaller batches to reduce memory load
 
     # Regular students (batched)
-    for batch_start in range(1, 30, BATCH_SIZE):
+    for batch_start in range(1, 120, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
 
     # Lateral entry students (batched)
@@ -124,8 +124,8 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     marks_list = []
     for row in rows:
         cells = row.find_all("td")
-        semester = cells[0].get_text(strip=True)
-        marks = cells[1].get_text(strip=True)
+        semester = cells[1].get_text(strip=True)
+        marks = cells[2].get_text(strip=True)
         marks_list.append({'semester': semester, 'marks': marks})
 
     f_grade_subjects = extract_subjects_with_f_grade(soup)
@@ -145,7 +145,7 @@ def extract_subjects_with_f_grade(soup):
     rows = table.find_all("tr")[1:]
     f_grade_subjects = [
         f"{row.find_all('td')[0].text.strip()} - {row.find_all('td')[1].text.strip()}"
-        for row in rows if row.find_all("td")[4].text.strip() in ['F', 'Ab']
+        for row in rows if row.find_all("td")[3].text.strip() in ['F', 'Ab']
     ]
     return f_grade_subjects
 
