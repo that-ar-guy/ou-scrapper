@@ -129,12 +129,14 @@ def find_result(globalbr, pre_link, hall_ticket, session):
         marks_list.append({'semester': semester, 'marks': marks})
 
     f_grade_subjects = extract_subjects_with_f_grade(soup)
+    cleared_subjects = extract_cleared_subjects(soup)
 
     return {
         'hall_ticket': hall_ticket,
         'marks': marks_list,  # List of dictionaries with semester and marks
         'name': name,
         'backlogs': Markup('<br>'.join(f_grade_subjects)) if f_grade_subjects else "No Backlogs",
+        'cleared_subjects': Markup('<br>'.join(cleared_subjects)) if cleared_subjects else "No Cleared Subjects",
     }
 
 # Helper Function to Extract 'F' Grade Subjects
@@ -148,6 +150,29 @@ def extract_subjects_with_f_grade(soup):
         for row in rows if row.find_all("td")[3].text.strip() in ['F', 'Ab']
     ]
     return f_grade_subjects
+
+#subjects without f or ab grade
+def extract_cleared_subjects(soup):
+    table = soup.find(id="AutoNumber4")
+    if not table:
+        return []
+
+    rows = table.find_all("tr")[1:]  # Skip the header row
+    cleared_subjects = []
+
+    for row in rows:
+        cells = row.find_all("td")
+        subject_code = cells[0].text.strip()
+        subject_name = cells[1].text.strip()
+        grade = cells[3].text.strip()
+
+        if subject_code == "Code" and subject_name == "Subject":
+            continue
+
+        if grade not in ['F', 'Ab']:  # Only include subjects without F or Ab grades
+            cleared_subjects.append(f"{subject_code} - {subject_name}")
+
+    return cleared_subjects
 
 # Routes
 @app.route('/', methods=['GET', 'POST'])

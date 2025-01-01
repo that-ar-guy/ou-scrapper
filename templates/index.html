@@ -54,6 +54,7 @@
                 <th>NAME</th>
                 <th>MARKS</th>
                 <th>BACKLOGS</th>
+                <th>CLEARED SUBJECTS</th>
             </tr>
         </thead>
         <tbody>
@@ -68,6 +69,7 @@
                     {% endfor %}
                 </td>
                 <td data-label="Backlogs">{{ result.backlogs }}</td>
+                <td data-label="Cleared Subjects">{{ result.cleared_subjects }}</td>
             </tr>
             {% endfor %}
         </tbody>
