@@ -139,17 +139,6 @@ def find_result(globalbr, pre_link, hall_ticket, session):
         'cleared_subjects': Markup('<br>'.join(cleared_subjects)) if cleared_subjects else "No Cleared Subjects",
     }
 
-# Helper Function to Extract 'F' Grade Subjects
-# def extract_subjects_with_f_grade(soup):
-#     table = soup.find(id="AutoNumber4")
-#     if not table:
-#         return []
-#     rows = table.find_all("tr")[1:]
-#     f_grade_subjects = [
-#         f"{row.find_all('td')[0].text.strip()} - {row.find_all('td')[1].text.strip()}"
-#         for row in rows if row.find_all("td")[3].text.strip() in ['F', 'Ab']
-#     ]
-#     return f_grade_subjects
 def extract_subjects_with_f_grade(soup):
     table = soup.find(id="AutoNumber4")
     if not table:
@@ -164,18 +153,17 @@ def extract_subjects_with_f_grade(soup):
         # Ensure the row has enough columns
         if len(cells) < 4:
             continue
-        
-        subject_code = cells[0].text.strip()
+
         subject_name = cells[1].text.strip()
         grade = cells[-1].text.strip()
 
-        # Skip invalid headers or empty rows
-        if subject_code.lower() == "sub code" or subject_name.lower() == "subject name":
+        
+        if  subject_name.lower() == "subject name":
             continue
 
         # Check for failed grades
         if grade in ['F', 'Ab']:
-            f_grade_subjects.append(f"{subject_code} - {subject_name}")
+            f_grade_subjects.append(f"{subject_name}")
 
     return f_grade_subjects
 
@@ -191,15 +179,14 @@ def extract_cleared_subjects(soup):
 
     for row in rows:
         cells = row.find_all("td")
-        subject_code = cells[0].text.strip()
         subject_name = cells[1].text.strip()
-        grade = cells[3].text.strip()
+        grade = cells[-1].text.strip()
 
-        if subject_code == "Code" and subject_name == "Subject":
+        if  subject_name.lower() == "subject name":
             continue
 
         if grade not in ['F', 'Ab']:  # Only include subjects without F or Ab grades
-            cleared_subjects.append(f"{subject_code} - {subject_name}")
+            cleared_subjects.append(subject_name)
 
     return cleared_subjects
 
