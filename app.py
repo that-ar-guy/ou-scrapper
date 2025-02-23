@@ -1,5 +1,5 @@
 from collections import Counter
-from flask import Flask, render_template, request,session
+from flask import Flask, render_template, request, session, jsonify
 from forms import ResultForm
 from bs4 import BeautifulSoup
 import mechanize
@@ -9,12 +9,9 @@ from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup
 import logging
 import os
-# added code
-from flask import jsonify
 import matplotlib.pyplot as plt
 import io
 import base64
-from collections import Counter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -64,18 +61,15 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     pre_link = result_link + "?mbstatus&htno="
 
     results = []
-    BATCH_SIZE = 30  # Scrape in smaller batches to reduce memory load
+    BATCH_SIZE = 30
 
-    # Regular students (batched)
     for batch_start in range(1, 121, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
-
-    # Lateral entry students (batched)
+    
     for batch_start in range(301, 320, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
-
+    
     return results
-
 
 # Helper Function to Scrape Each Batch
 def scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_end):
@@ -100,13 +94,13 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     result_link = pre_link + hall_ticket
     try:
         raw = session.get(result_link, timeout=5)
-        raw.raise_for_status()  # Raise an error for HTTP codes 4xx/5xx
+        raw.raise_for_status()
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching result for {hall_ticket}: {e}")
         return None
 
     soup = BeautifulSoup(raw.content, "html.parser")
-
+    
     table = soup.find('table', id="AutoNumber3")
     if not table:
         return None
@@ -118,77 +112,47 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     table = soup.find(id="AutoNumber5")
     if not table:
         return None
-    rows = table.find_all("tr")[2:]  # Assuming multiple rows for different semesters
+    rows = table.find_all("tr")[2:]
+    
+    marks_list = [{'semester': cells[0].get_text(strip=True), 'marks': cells[1].get_text(strip=True)} for row in rows if (cells := row.find_all("td"))]
 
-    # Create a list of dictionaries for marks across semesters
-    marks_list = []
-    for row in rows:
-        cells = row.find_all("td")
-        semester = cells[0].get_text(strip=True)
-        marks = cells[1].get_text(strip=True)
-        marks_list.append({'semester': semester, 'marks': marks})
-
-    f_grade_subjects = extract_subjects_with_f_grade(soup)
-    cleared_subjects = extract_cleared_subjects(soup)
-
+    failed_subjects, cleared_subjects = extract_subjects(soup)
+    
     return {
         'hall_ticket': hall_ticket,
-        'marks': marks_list,  # List of dictionaries with semester and marks
+        'marks': marks_list,
         'name': name,
-        'backlogs': Markup('<br>'.join(f_grade_subjects)) if f_grade_subjects else "No Backlogs",
+        'backlogs': Markup('<br>'.join(failed_subjects)) if failed_subjects else "No Backlogs",
         'cleared_subjects': Markup('<br>'.join(cleared_subjects)) if cleared_subjects else "No Cleared Subjects",
     }
 
-def extract_subjects_with_f_grade(soup):
+# Optimized Function to Extract Subjects
+def extract_subjects(soup):
     table = soup.find(id="AutoNumber4")
     if not table:
-        return []
+        return [], []
     
-    rows = table.find_all("tr")[2:]  # Skip the header row
-    f_grade_subjects = []
-
+    rows = table.find_all("tr")[1:]
+    failed_subjects = []
+    cleared_subjects = []
+    
     for row in rows:
         cells = row.find_all("td")
-        
-        # Ensure the row has enough columns
         if len(cells) < 4:
             continue
-
-        subject_name = cells[1].text.strip()
-        grade = cells[-1].text.strip()
-
         
-        if  subject_name.lower() == "subject name":
-            continue
-
-        # Check for failed grades
-        if grade in ['F', 'Ab']:
-            f_grade_subjects.append(f"{subject_name}")
-
-    return f_grade_subjects
-
-
-#subjects without f or ab grade
-def extract_cleared_subjects(soup):
-    table = soup.find(id="AutoNumber4")
-    if not table:
-        return []
-
-    rows = table.find_all("tr")[1:]  # Skip the header row
-    cleared_subjects = []
-
-    for row in rows:
-        cells = row.find_all("td")
         subject_name = cells[1].text.strip()
         grade = cells[-1].text.strip()
-
-        if  subject_name.lower() == "subject name":
+        
+        if subject_name.lower() == "subject name":
             continue
-
-        if grade not in ['F', 'Ab']:  # Only include subjects without F or Ab grades
+        
+        if grade in ['F', 'Ab']:
+            failed_subjects.append(subject_name)
+        else:
             cleared_subjects.append(subject_name)
-
-    return cleared_subjects
+    
+    return failed_subjects, cleared_subjects
 
 # Routes
 @app.route('/', methods=['GET', 'POST'])
@@ -205,8 +169,7 @@ def index():
         field_code = form.field_code.data
         field_name = FIELD_CHOICES.get(field_code)
         year = form.year.data
-                
-        # Scraping Results in batches
+        
         results = scrape_results_in_batches(result_link, college_code, field_code, year)
         session['results'] = results
     return render_template('index.html', form=form, results=results, college_name=college_name, field_name=field_name)
@@ -214,18 +177,9 @@ def index():
 @app.route('/analysis')
 def analysis():
     results = session.get('results', [])
-    
-    # Collect all backlogs excluding "No Backlogs"
-    all_backlogs = []
-    for result in results:
-        if result['backlogs'] != "No Backlogs":
-            all_backlogs.extend(result['backlogs'].split('<br>'))  # Assuming backlogs are split by <br>
-    
-    # Count occurrences of each backlog and sort by count in descending order
+    all_backlogs = [subject for result in results if result['backlogs'] != "No Backlogs" for subject in result['backlogs'].split('<br>')]
     backlog_counts = dict(sorted(Counter(all_backlogs).items(), key=lambda item: item[1], reverse=True))
-    
     return render_template('analysis.html', backlog_counts=backlog_counts)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
