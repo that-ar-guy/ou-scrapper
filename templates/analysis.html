@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -45,14 +44,14 @@
             {% endfor %}
         </tbody>
     </table>
+
     <button id="backButton"><b>Back to Results</b></button>
 
-<script>
-    document.getElementById("backButton").addEventListener("click", function () {
-        window.location.href = "{{ url_for('index') }}";
-    });
-</script>
     <script>
+        document.getElementById("backButton").addEventListener("click", function () {
+            window.location.href = "{{ url_for('index') }}";
+        });
+
         function toggleSidebar() {
             const sidebar = document.getElementById("sidebar");
             sidebar.style.display = sidebar.style.display === "block" ? "none" : "block";
@@ -60,5 +59,4 @@
     </script>
 
 </body>
-
 </html>

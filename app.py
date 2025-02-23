@@ -63,7 +63,7 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     results = []
     BATCH_SIZE = 30
 
-    for batch_start in range(1, 121, BATCH_SIZE):
+    for batch_start in range(1, 30, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
     
     for batch_start in range(301, 320, BATCH_SIZE):
@@ -100,7 +100,7 @@ def find_result(globalbr, pre_link, hall_ticket, session):
         return None
 
     soup = BeautifulSoup(raw.content, "html.parser")
-    
+
     table = soup.find('table', id="AutoNumber3")
     if not table:
         return None
@@ -113,17 +113,17 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     if not table:
         return None
     rows = table.find_all("tr")[2:]
-    
+
     marks_list = [{'semester': cells[0].get_text(strip=True), 'marks': cells[1].get_text(strip=True)} for row in rows if (cells := row.find_all("td"))]
 
     failed_subjects, cleared_subjects = extract_subjects(soup)
-    
+
     return {
         'hall_ticket': hall_ticket,
         'marks': marks_list,
         'name': name,
-        'backlogs': Markup('<br>'.join(failed_subjects)) if failed_subjects else "No Backlogs",
-        'cleared_subjects': Markup('<br>'.join(cleared_subjects)) if cleared_subjects else "No Cleared Subjects",
+        'backlogs': failed_subjects if failed_subjects else [],  # Store as a proper list
+        'cleared_subjects': cleared_subjects if cleared_subjects else [],
     }
 
 # Optimized Function to Extract Subjects
@@ -177,8 +177,16 @@ def index():
 @app.route('/analysis')
 def analysis():
     results = session.get('results', [])
-    all_backlogs = [subject for result in results if result['backlogs'] != "No Backlogs" for subject in result['backlogs'].split('<br>')]
+    all_backlogs = []
+
+    # Collect all backlog subjects, ensuring "No Backlogs" is ignored
+    for result in results:
+        if result['backlogs']:  # It's already a list
+            all_backlogs.extend(result['backlogs'])
+
+    # Count occurrences of each backlog subject
     backlog_counts = dict(sorted(Counter(all_backlogs).items(), key=lambda item: item[1], reverse=True))
+
     return render_template('analysis.html', backlog_counts=backlog_counts)
 
 if __name__ == '__main__':
