@@ -45,7 +45,13 @@
             {% endfor %}
         </tbody>
     </table>
-    <button onclick="location.href='{{ url_for('index')}}'"><b>Back to Results</b></button>
+    <button id="backButton"><b>Back to Results</b></button>
+
+<script>
+    document.getElementById("backButton").addEventListener("click", function () {
+        window.location.href = "{{ url_for('index') }}";
+    });
+</script>
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById("sidebar");
