@@ -63,7 +63,7 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     results = []
     BATCH_SIZE = 30
 
-    for batch_start in range(1, 30, BATCH_SIZE):
+    for batch_start in range(1, 120, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
     
     for batch_start in range(301, 320, BATCH_SIZE):
