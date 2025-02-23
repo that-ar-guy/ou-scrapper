@@ -12,7 +12,7 @@
 <body>
     <div class="nav-strip">
         <span class="burger-icon" onclick="toggleSidebar()">&#9776;</span>
-        <h1>RESULTS SCRAPPER</h1>
+        <h1>RESULTS SCRAPER</h1>
     </div>
 
     <div class="sidebar" id="sidebar">
@@ -60,7 +60,7 @@
         <tbody>
             {% for result in results %}
             <tr>
-                <td data-label="Hall Ticket"> <B>{{ result.hall_ticket[-3:] }}</B> </td>
+                <td data-label="Hall Ticket"> <b>{{ result.hall_ticket[-3:] }}</b> </td>
                 <td data-label="Name"> <b>{{ result.name }}</b> </td>
                 <td data-label="Marks">
                     {% for entry in result.marks %}
@@ -68,15 +68,31 @@
                     <strong>Marks:</strong> {{ entry.marks }}<br><br>
                     {% endfor %}
                 </td>
-                <td data-label="Backlogs">{{ result.backlogs }}</td>
-                <td data-label="Cleared Subjects">{{ result.cleared_subjects }}</td>
+                <td data-label="Backlogs">
+                    {% if result.backlogs %}
+                        {% for subject in result.backlogs %}
+                            <b>{{ subject }}</b><br>
+                        {% endfor %}
+                    {% else %}
+                        No Backlogs
+                    {% endif %}
+                </td>
+                
+                <td data-label="Cleared Subjects">
+                    {% if result.cleared_subjects %}
+                        {% for subject in result.cleared_subjects %}
+                            <b>{{ subject }}</b><br>
+                        {% endfor %}
+                    {% else %}
+                        No Cleared Subjects
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD
-            RESULTS</b></button>
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD RESULTS</b></button>
     <button class="download-btn" onclick="location.href='/analysis'"><b>VIEW ANALYSIS</b></button>
     {% endif %}
 
@@ -90,11 +106,9 @@
     <!-- Include SheetJS for XLSX support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-
         function showLoading() {
             document.getElementById('loading-overlay').style.display = 'flex';
         }
-
 
         function downloadXLSX(filename) {
             let table = document.getElementById("resultsTable");
@@ -102,7 +116,6 @@
                 console.error("Table not found!");
                 return;
             }
-
             let wb = XLSX.utils.table_to_book(table, { sheet: "Results" });
             XLSX.writeFile(wb, filename);
         }
@@ -114,5 +127,4 @@
     </script>
 
 </body>
-
 </html>

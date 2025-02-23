@@ -88,6 +88,7 @@ table {
 }
 
 th, td {
+    list-style: none;
     padding: 12px;
     text-align: left;
     border: 1px solid #ddd;
