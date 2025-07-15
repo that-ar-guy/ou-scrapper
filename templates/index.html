@@ -55,6 +55,7 @@
                 <th>MARKS</th>
                 <th>BACKLOGS</th>
                 <th>CLEARED SUBJECTS</th>
+                <th>CGPA</th> <!-- 👈 New column -->
             </tr>
         </thead>
         <tbody>
@@ -70,29 +71,33 @@
                 </td>
                 <td data-label="Backlogs">
                     {% if result.backlogs %}
-                        {% for subject in result.backlogs %}
-                            <b>{{ subject }}</b><br>
-                        {% endfor %}
+                    {% for subject in result.backlogs %}
+                    <b>{{ subject }}</b><br>
+                    {% endfor %}
                     {% else %}
-                        No Backlogs
+                    No Backlogs
                     {% endif %}
                 </td>
-                
+
                 <td data-label="Cleared Subjects">
                     {% if result.cleared_subjects %}
-                        {% for subject in result.cleared_subjects %}
-                            <b>{{ subject }}</b><br>
-                        {% endfor %}
+                    {% for subject in result.cleared_subjects %}
+                    <b>{{ subject }}</b><br>
+                    {% endfor %}
                     {% else %}
-                        No Cleared Subjects
+                    No Cleared Subjects
                     {% endif %}
+                </td>
+                <td data-label="CGPA">
+                    <b>{{ result.cgpa }}</b>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD RESULTS</b></button>
+    <button class="download-btn" onclick="downloadXLSX('{{ college_name }}_{{field_name}}_RESULTS.xlsx')"><b>DOWNLOAD
+            RESULTS</b></button>
     <button class="download-btn" onclick="location.href='/analysis'"><b>VIEW ANALYSIS</b></button>
     {% endif %}
 
@@ -127,4 +132,5 @@
     </script>
 
 </body>
+
 </html>
