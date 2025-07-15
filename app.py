@@ -61,12 +61,12 @@ def scrape_results_in_batches(result_link, college_code, field_code, year):
     pre_link = result_link + "?mbstatus&htno="
 
     results = []
-    BATCH_SIZE = 30
+    BATCH_SIZE = 20
 
-    for batch_start in range(1, 120, BATCH_SIZE):
+    for batch_start in range(1, 121, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
     
-    for batch_start in range(301, 320, BATCH_SIZE):
+    for batch_start in range(301, 310, BATCH_SIZE):
         results += scrape_batch(globalbr, pre_link, college_code, field_code, year, batch_start, batch_start + BATCH_SIZE)
     
     return results
@@ -115,6 +115,9 @@ def find_result(globalbr, pre_link, hall_ticket, session):
     rows = table.find_all("tr")[2:]
 
     marks_list = [{'semester': cells[0].get_text(strip=True), 'marks': cells[1].get_text(strip=True)} for row in rows if (cells := row.find_all("td"))]
+    last_row = rows[-1]
+    last_cols = last_row.find_all("td")
+    cgpa = last_cols[-1].get_text(strip=True)
 
     failed_subjects, cleared_subjects = extract_subjects(soup)
 
@@ -124,6 +127,7 @@ def find_result(globalbr, pre_link, hall_ticket, session):
         'name': name,
         'backlogs': failed_subjects if failed_subjects else [],  # Store as a proper list
         'cleared_subjects': cleared_subjects if cleared_subjects else [],
+        'cgpa': cgpa,
     }
 
 # Optimized Function to Extract Subjects
