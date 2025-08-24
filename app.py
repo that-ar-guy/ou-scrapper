@@ -135,27 +135,29 @@ def extract_subjects(soup):
     table = soup.find(id="AutoNumber4")
     if not table:
         return [], []
-    
+
     rows = table.find_all("tr")[1:]
     failed_subjects = []
     cleared_subjects = []
-    
+
     for row in rows:
         cells = row.find_all("td")
-        if len(cells) < 4:
+        if len(cells) < 5:
             continue
-        
+
         subject_name = cells[1].text.strip()
         grade = cells[-1].text.strip()
-        
+
         if subject_name.lower() == "subject name":
             continue
-        
+
+        subject_info = {'subject': subject_name, 'grade': grade}
+
         if grade in ['F', 'Ab']:
-            failed_subjects.append(subject_name)
+            failed_subjects.append(subject_info)
         else:
-            cleared_subjects.append(subject_name)
-    
+            cleared_subjects.append(subject_info)
+
     return failed_subjects, cleared_subjects
 
 # Routes
